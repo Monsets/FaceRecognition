@@ -39,17 +39,11 @@ def load_test_images(path):
 # Read images
 images, labels = readImages()
 
-x_train, x_test, y_train, y_test = train_test_split(images, labels, test_size = 0.1)
+x_train, x_test, y_train, y_test = train_test_split(images, labels, test_size = 0.10)
 print("Длина тренировки: {} Длина теcта: {}".format(len(x_train), len(x_test)))
 
-efr = EigenFacesRecognition(x_train, y_train, num_eigen_faces = 300 )
+efr = EigenFacesRecognition(x_train, y_train, num_eigen_faces = 300)
 
-error = 0
+preds = efr.predict(x_test)
 
-for x, y in zip(x_test, y_test):
-    pred = efr.predict(x)
-    print("True class: {} Predicted class: {}".format(y, pred))
-    if pred != y:
-        error += 1
-
-print("Total error: {}".format(error))
+print("Total error: {}".format(len(y_test) - np.sum(np.array(preds == y_test).astype(int))))

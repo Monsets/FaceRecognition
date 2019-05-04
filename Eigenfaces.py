@@ -11,10 +11,11 @@ class EigenFacesRecognition():
         self.eigens = []
         self.__build()
 
-    def predict(self, image):
+    def predict1(self, image):
         min_score = self.threshold
         label = ''
         image = np.array(image).reshape(-1, 1)
+        print(np.array(self.means).shape)
         for i in range(len(np.unique(self.labels))):
             omega = np.dot(self.eigens, image)
             thresh = np.sum(np.abs(omega - self.means[i]))
@@ -22,6 +23,17 @@ class EigenFacesRecognition():
                 min_score = thresh
                 label = np.unique(self.labels)[i]
         return label
+
+
+    def predict(self, images):
+        images = np.array(images).reshape(len(images), -1).T
+        omega = np.dot(self.eigens, images)
+        omega = omega.reshape((1, omega.shape[0], omega.shape[1]))
+        thresh = np.abs(np.subtract(omega, self.means))
+        sums = np.sum(thresh, axis = 1)
+        args = np.argmin(sums, axis = 0)
+        preds = np.unique(self.labels)[args]
+        return preds
 
     def __create_data_matrix(self):
         '''
@@ -59,5 +71,7 @@ class EigenFacesRecognition():
             mean, _ = cv2.PCACompute(class_data, mean=None, maxComponents=self.num_eigen_faces)
 
             self.means.append(np.dot(self.eigens, mean.T))
+
+        self.images = []
 
         print("Model was sucessfully build")
